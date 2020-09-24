@@ -1,0 +1,39 @@
+/* https://devr.cc/de/google-serp-snippet-als-css-vorlage/ */
+.title {
+    text-decoration: none;
+    color: #1a0dab;
+    font-size: 19px;
+    font-family: arial,sans-serif;
+    font-weight: normal;
+    max-width: 512px;
+    max-height: 22px;
+    overflow: hidden;
+}
+
+.url {
+    color: #006621;
+    font-size: 13px;
+    font-family: arial,sans-serif;
+    font-weight: normal;
+    line-height: 16px;
+    max-width: 512px;
+    max-height: 18px;
+    overflow: hidden;
+}
+
+.desc {
+    font-family: arial,sans-serif;
+    color: #545454;
+    font-weight: normal;
+    line-height: 16px;
+    font-size: 13px;
+    max-width: 512px;
+    max-height: 32px;
+    overflow: hidden;
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
