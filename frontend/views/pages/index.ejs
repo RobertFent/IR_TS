@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include("../partials/head.ejs") %>
+</head>
+
+<body>
+    <%- include("../partials/header.ejs") %>
+    <div class="container">
+        <form action="/search" method="POST">
+            <input type="text" placeholder="id" name="id">
+            <input type="text" placeholder="content" name="content">
+            <input type="text" placeholder="title" name="title">
+            <input type="text" placeholder="media-type" name="mediaType">
+            <input type="text" placeholder="source" name="source">
+            <input type="text" placeholder="published" name="published">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="container">
+        <h3>Search Results</h3>
+        <ul class="results">
+            <% for(let i = 0; i < results.length; i++) {%>
+            <li class="entry">
+                <div class="title">
+                    <%= results[i].title %>
+                </div>
+                 
+                <div class="url">
+                    <%= results[i].source %>
+                </div>
+                 
+                <div class="desc">
+                    <%= results[i].content.slice(0, 150) %>...
+                </div>
+                <!--
+                <span><%= results[i].id %></span>
+                <span><%= results[i].content %></span>
+                <span><%= results[i].title %></span>
+                <span><%= results[i].mediaType %></span>
+                <span><%= results[i].source %></span>
+                <span><%= results[i].published %></span>
+                -->
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</body>
+
+
+
+</html>
