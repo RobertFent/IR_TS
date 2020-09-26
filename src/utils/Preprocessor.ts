@@ -1,4 +1,4 @@
-import { ISignalMedia, ISginalMediaEntry, ISignalMediaArray } from '../types/signalMedia';
+import { ISginalMediaEntry, ISignalMediaArray } from '../types/signalMedia';
 import Logger from './Logger';
 import LineReader from 'line-reader';
 
@@ -82,7 +82,7 @@ export default class Preprocessor {
         let i = 0;
     try {
         await new Promise((res, rej) => {
-            LineReader.eachLine(path, (line, last) => {
+            LineReader.eachLine(path, (line, _last) => {
                 const entry: ISginalMediaEntry = JSON.parse(line);
                 file[i] = entry;
                 // todo currently only parsing first 100k entries

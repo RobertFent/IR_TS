@@ -22,6 +22,7 @@ const requestHandler = new RequestHandler(clientWrapper);
 let results: ISourceArray = [];
 
 // creates index + adds entries from jsonl to it
+// eslint-disable-next-line no-unused-vars
 const initIndexing = async (): Promise<void> => {
     await clientWrapper.createIndex();
     const entries = await preprocessor.parseJSONLToJSON(JSONPATH);

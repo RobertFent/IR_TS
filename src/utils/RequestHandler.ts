@@ -1,5 +1,5 @@
 import ClientWrapper from './ClientWrapper';
-import { ISearchBody, ISearchBodyArray, ISearchQuery, ISearchResponse, ISource, ISourceArray } from '../types/searchTypes';
+import { ISearchBody, ISearchQuery, ISearchResponse, ISource, ISourceArray } from '../types/searchTypes';
 import Logger from './Logger';
 
 export default class RequestHandler {

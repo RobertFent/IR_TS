@@ -76,7 +76,7 @@ export default class ClientWrapper {
         const that = this;
         const result = await this.client.helpers.bulk({
             datasource: entries,
-            onDocument(doc) {
+            onDocument(_doc) {
                 return {
                     index: { _index: that.index as string }
                 };

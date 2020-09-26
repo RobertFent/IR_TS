@@ -37,7 +37,15 @@ module.exports = {
 			'always'
 		],
 		'@typescript-eslint/explicit-function-return-type': ['error'],
-		'no-unused-vars': 'off',
+		'no-unused-vars': [
+            'error', 
+            {
+                'vars': 'all',
+                'args': 'after-used',
+                'ignoreRestSiblings': true,
+                'argsIgnorePattern': '^_'
+            }
+        ],
 		'no-console': [
 			'error'
 		]
