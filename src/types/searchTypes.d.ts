@@ -17,7 +17,7 @@ interface ISearchBody{
 
 export interface ISearchBodyArray extends Array<ISearchBody> {}
 
-interface ISearchResponse<T> {
+export interface ISearchResponse<T> {
     took: number;
     timed_out: boolean;
     _scroll_id?: string;
