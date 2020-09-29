@@ -69,7 +69,7 @@ export default class Preprocessor {
     public constructor() {
         // this.typedData = data as ISignalMedia;
         // init logger
-        this.logger = new Logger('Server');
+        this.logger = new Logger('Preprocessor');
     }
 
     public parseJSON = async (): Promise<void> => {
@@ -82,20 +82,39 @@ export default class Preprocessor {
         let i = 0;
     try {
         await new Promise((res, rej) => {
+            // running each indexing command seperate -> retarded
             LineReader.eachLine(path, (line, _last) => {
                 const entry: ISginalMediaEntry = JSON.parse(line);
                 file[i] = entry;
-                // todo currently only parsing first 100k entries
-                if (i === 99999) res();
-                /* if(last) {
-                    this.logger.debug('last');
-                    this.logger.debug(i.toString());
-                    res();
-                } */
+                // manual resolving after 1mio entries
+                // if (i === 999999) res();
+                // for now only able to index first 900k without crashing
+                if (i === 899999) res();
                 i++;
             });
+            /* LineReader.eachLine(path, (line, _last) => {
+                const entry: ISginalMediaEntry = JSON.parse(line);
+                if (i > 900000) file.push(entry);
+                // manual resolving after 1mio entries
+                // if (i === 999999) res();
+                // for now only able to index first 900k without crashing
+                if (i === 999999) res();
+                i++;
+            }); */
+            
+            // breaks at line 33
+            /* LineReader.open(path, (_err, reader) => {
+                while (reader.hasNextLine()) {
+                    reader.nextLine((_err, _line) => {
+                        this.logger.debug(i.toString());
+                        i++;
+                    });
+                    if (i % 100000 === 0) this.logger.debug(i.toString());
+                }
+                this.logger.debug(`EOF! i=${i}`);
+            }); */
             // wait 100min before rejecting
-            setTimeout(() => rej('Timeout after 10min has been thrown'), 600000);
+            setTimeout(() => rej('Timeout after 100min has been thrown'), 600000);
         });
     } catch (error) {
         this.logger.error(error);
