@@ -25,17 +25,19 @@ const queries = {
     football: 'top football leagues',
     socialMediaPsychology: 'downsides of instagram',
     soccer: 'most paid soccer player'
-
 };
 
+const clientNames = ['lm', 'dfi', 'idf'];
+
 const run = async (): Promise<void> => {
-    // init logger + clients + requestHandler
+    // init logger and clients
     logger = new Logger('ScoringAlgorithm');
-    // todo use test collection for idf client
-    // const idfClient = new ClientWrapper('signal_media');
-    const lmClient = new ClientWrapper('signal_media_lm');
-    const dfiClient = new ClientWrapper('signal_media_dfi');
-    const clientMap = await getMapsOfEachClient([lmClient, dfiClient]);
+    const clients: ClientWrapper[] = [];
+    clientNames.forEach((name) => {
+        clients.push(new ClientWrapper(`signal_media_${name}`));
+    });
+    // get client with best avg score
+    const clientMap = await getMapsOfEachClient(clients);
     logger.info(`winner: ${getBestClient(clientMap)}`);
 };
 
@@ -58,7 +60,7 @@ const getMapsOfEachClient = async (clients: ClientWrapper[]): Promise<ClientMap>
             });
         });
     }
-    logger.debug(JSON.stringify(clientMap));
+    // logger.debug(JSON.stringify(clientMap));
     return clientMap;
 };
 
@@ -81,6 +83,7 @@ const getMap = (result: ISourceArray, topic: string): number => {
     return correct/10;
 };
 
+// returns name of the client with the highest avg score
 const getBestClient = (clientMap: ClientMap): string => {
     const clientAvgScore: ClientAvgScore = {};
     // iterate over clients and get avg map value
