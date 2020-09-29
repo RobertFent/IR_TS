@@ -2,7 +2,7 @@
   "name": "ir_ts",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/Server.js",
+  "main": "dist/src/Server.js",
   "scripts": {
     "clean": "rimraf dist/*",
     "lint": "eslint \"src/**/*.ts\" --fix",
@@ -10,7 +10,7 @@
     "build": "npm-run-all clean lint tsc",
     "start": "npm-run-all build && node .",
     "dev": "nodemon --exec npm run start",
-    "parseJSON": "ts-node src/utils/JSONLParser"
+    "scoringAlg": "ts-node src/utils/ScoringAlgorithm"
   },
   "keywords": [],
   "author": "",
