@@ -9,6 +9,7 @@ import testCollection from '../assets/relevanceJudgments.json';
 import fs from 'fs';
 import { ISearchQuery, ISourceArray } from './types/searchTypes';
 import { ISignalMediaArray } from './types/signalMedia';
+import testCollectionJson from '../assets/testCollection.json';
 
 const PORT = 8069;
 const JSONPATH = __dirname + '/../../assets/sample-1M.jsonl';
@@ -51,17 +52,26 @@ const initTestCollection = async (): Promise<void> => {
     }
     fs.writeFileSync(JSONPATHTESTCOLLECTION, JSON.stringify(testEntries));
     logger.info('Test entries wrote!');
+};
+
+// creates clients with test collection indexed
+// eslint-disable-next-line no-unused-vars
+const initTestClients = async (): Promise<void> => {
+    const testEntries: ISignalMediaArray = testCollectionJson as unknown as ISignalMediaArray;
     // create a few indices for later comparison
     const lmClient = new ClientWrapper('signal_media_lm');
     const dfiClient = new ClientWrapper('signal_media_dfi');
+    const idfClient = new ClientWrapper('signal_media_idf');
     await Promise.all([
         lmClient.createIndex(Similarities.lm, Analyzer.default),
-        dfiClient.createIndex(Similarities.dfi, Analyzer.default)
+        dfiClient.createIndex(Similarities.dfi, Analyzer.default),
+        idfClient.createIndex(Similarities.idf, Analyzer.default)
     ]);
     // index above parsed files to each index
     await Promise.all([
         lmClient.indexDocuments(testEntries),
-        dfiClient.indexDocuments(testEntries)
+        dfiClient.indexDocuments(testEntries),
+        idfClient.indexDocuments(testEntries)
     ]);
 };
 
@@ -96,4 +106,5 @@ app.listen(PORT, async (): Promise<void> => {
     // uncomment following lines when starting this server on your machine for the first time
     // await initIndexing();
     // await initTestCollection();
+    await initTestClients();
 });
