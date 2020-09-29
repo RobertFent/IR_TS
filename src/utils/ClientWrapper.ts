@@ -1,13 +1,65 @@
+/* eslint-disable no-unused-vars */
 import { Client } from '@elastic/elasticsearch';
 import { ISearchBody, ISearchResponse, ISource } from '../types/searchTypes';
 import { ISignalMediaArray } from '../types/signalMedia';
 import Logger from './Logger';
 
+const lmSimilarity = {
+    similarity: {
+        my_similarity: {
+            type: 'LMDirichlet',
+            mu: '2000'
+        }
+    }
+
+};
+
+// do not combine w/ stopword removal
+const dfiSimilarity = {
+    similarity: {
+        my_similarity: {
+            type: 'DFI',
+            independence_measure: 'standardized'
+        }
+    }
+};
+
+const idfSimilarity = {
+    similarity: {
+        my_similarity: {
+            type: 'BM25',
+            k1: '1.2',
+            b: '0.75',
+            discount_overlaps: true
+        }
+    }
+};
+
+const defaultAnalyzer = {
+    analyzer: {
+        my_custom_analyzer: {
+            type: 'custom',
+            tokenizer: 'whitespace',
+            filter: ['lowercase']
+        }
+    }
+};
+
+export const Similarities = {
+    lm: lmSimilarity,
+    dfi: dfiSimilarity,
+    idf: idfSimilarity  
+};
+
+export const Analyzer = {
+    default: defaultAnalyzer
+};
+
 export default class ClientWrapper {
 
     private client: Client;
     private logger: Logger;
-    private index: string;
+    public index: string;
 
     constructor(index: string) {
         this.client = new Client({ node: 'http://localhost:9200' });
@@ -15,41 +67,40 @@ export default class ClientWrapper {
         this.index = index;
     }
 
-    public createIndex = async (): Promise<void> => {
+    // fuck typing
+    public createIndex = async (similarity: any, analyzer: any): Promise<void> => {
         this.logger.info('Creating index: ' + this.index);
         const result = await this.client.indices.create({
             index: this.index,
             body: {
                 settings: {
-                    analysis: {
-                        analyzer: {
-                            my_custom_analyzer: {
-                                type: 'custom',
-                                tokenizer: 'whitespace',
-                                filter: ['lowercase']
-                            }
-                        }
-                    }
+                    analysis: analyzer,
+                    // default idf
+                    index: similarity
                 },
                 mappings: {
                     properties: {
                         id: { type: 'text' },
                         source: {
                             type: 'text',
-                            analyzer: 'my_custom_analyzer'
+                            analyzer: 'my_custom_analyzer',
+                            similarity : 'my_similarity'
                         },
                         published: { 'type': 'text' },
                         title: {
                             type: 'text',
-                            analyzer: 'my_custom_analyzer'
+                            analyzer: 'my_custom_analyzer',
+                            similarity : 'my_similarity'
                         },
                         'media-type': {
                             type: 'text',
-                            analyzer: 'my_custom_analyzer'
+                            analyzer: 'my_custom_analyzer',
+                            similarity : 'my_similarity'
                         },
                         content: {
                             type: 'text',
-                            analyzer: 'my_custom_analyzer'
+                            analyzer: 'my_custom_analyzer',
+                            similarity : 'my_similarity'
                         }
                     }
                 }

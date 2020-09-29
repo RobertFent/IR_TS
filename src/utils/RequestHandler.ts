@@ -5,30 +5,30 @@ import Logger from './Logger';
 export default class RequestHandler {
 
     private logger: Logger;
-    private client: ClientWrapper;
+    // private client: ClientWrapper;
 
-    public constructor(client: ClientWrapper) {
+    public constructor() {
         this.logger = new Logger(this.constructor.name);
-        this.client = client;
+        // this.client = client;
     }
 
-    public handleSearchQuery = async (searchQuery: ISearchQuery): Promise<ISourceArray> => {
+    public handleSearchQuery = async (searchQuery: ISearchQuery, client: ClientWrapper): Promise<ISourceArray> => {
         // const searchBodyArray: ISearchBodyArray = [];
         const searchBody: ISearchBody = {};
-        const test: any = [];
+        // const test: any = [];
         Object.keys(searchQuery).forEach((key) => {
             const value = searchQuery[key];
             if (value) {
-                this.logger.debug(`${key}: ${value}`);
+                // this.logger.debug(`${key}: ${value}`);
                 searchBody[key] = value;
-                test.push({match: {[key]: value}});
+                // test.push({match: {[key]: value}});
                 // searchBodyArray.push({match: {[key]: value}});
             }
         });
-        this.logger.debug(JSON.stringify(test));
-        // todo make this work
+        // this.logger.debug(JSON.stringify(test));
+        // todo make test var work
         // const searchResult = await this.client.getSearchResultsByQuery(test);
-        const searchResult = await this.client.getSearchResultsByQuery(searchBody);
+        const searchResult = await client.getSearchResultsByQuery(searchBody);
         return this.parseSearchResult(searchResult);
     }
 
