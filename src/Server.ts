@@ -1,7 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
-import ClientWrapper, { Analyzer, Similarities } from './utils/ClientWrapper';
+import ClientWrapper from './utils/ClientWrapper';
+import { Analyzer, Similarities } from './utils/ClientSettings';
 import Logger from './utils/Logger';
 import Preprocessor from './utils/Preprocessor';
 import RequestHandler from './utils/RequestHandler';
@@ -58,20 +59,36 @@ const initTestCollection = async (): Promise<void> => {
 // eslint-disable-next-line no-unused-vars
 const initTestClients = async (): Promise<void> => {
     const testEntries: ISignalMediaArray = testCollectionJson as unknown as ISignalMediaArray;
-    // create a few indices for later comparison
-    const lmClient = new ClientWrapper('signal_media_lm');
-    const dfiClient = new ClientWrapper('signal_media_dfi');
-    const idfClient = new ClientWrapper('signal_media_idf');
+    // create a clients w/ different settings
+    const lmClient = new ClientWrapper('signal_media_lm_def');
+    const lmCustomClient = new ClientWrapper('signal_media_lm_cust');
+    const lmStopwordClient = new ClientWrapper('signal_media_lm_stop');
+    const dfiClient = new ClientWrapper('signal_media_dfi_def');
+    const dfiCustomClient = new ClientWrapper('signal_media_dfi_cust');
+    const idfClient = new ClientWrapper('signal_media_idf_def');
+    const idfCustomClient = new ClientWrapper('signal_media_idf_cust');
+    const idfStopwordClient = new ClientWrapper('signal_media_idf_stop');
+    // create index for each client
     await Promise.all([
         lmClient.createIndex(Similarities.lm, Analyzer.default),
+        lmCustomClient.createIndex(Similarities.lm, Analyzer.custom),
+        lmStopwordClient.createIndex(Similarities.lm, Analyzer.stopword),
         dfiClient.createIndex(Similarities.dfi, Analyzer.default),
-        idfClient.createIndex(Similarities.idf, Analyzer.default)
+        dfiCustomClient.createIndex(Similarities.dfi, Analyzer.custom),
+        idfClient.createIndex(Similarities.idf, Analyzer.default),
+        idfCustomClient.createIndex(Similarities.idf, Analyzer.custom),
+        idfStopwordClient.createIndex(Similarities.idf, Analyzer.stopword)
     ]);
     // index above parsed files to each index
     await Promise.all([
         lmClient.indexDocuments(testEntries),
+        lmCustomClient.indexDocuments(testEntries),
+        lmStopwordClient.indexDocuments(testEntries),
         dfiClient.indexDocuments(testEntries),
-        idfClient.indexDocuments(testEntries)
+        dfiCustomClient.indexDocuments(testEntries),
+        idfClient.indexDocuments(testEntries),
+        idfCustomClient.indexDocuments(testEntries),
+        idfStopwordClient.indexDocuments(testEntries)
     ]);
 };
 

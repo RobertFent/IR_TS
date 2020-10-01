@@ -14,6 +14,7 @@ interface ClientAvgScore {
 
 let logger: Logger;
 
+// one query for each topic
 const queries = {
     socialMediaMarketing: 'how to make money with social media',
     dopingSport: 'cheating in sport',
@@ -27,7 +28,7 @@ const queries = {
     soccer: 'most paid soccer player'
 };
 
-const clientNames = ['lm', 'dfi', 'idf'];
+const clientNames = ['lm_def', 'lm_cust', 'lm_stop', 'dfi_def', 'dfi_cust', 'idf_def', 'idf_cust', 'idf_stop'];
 
 const run = async (): Promise<void> => {
     // init logger and clients
@@ -60,6 +61,7 @@ const getMapsOfEachClient = async (clients: ClientWrapper[]): Promise<ClientMap>
             });
         });
     }
+    // uncomment to get list of actual scores if outcome is not expected :-)
     // logger.debug(JSON.stringify(clientMap));
     return clientMap;
 };
