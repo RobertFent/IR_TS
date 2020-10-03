@@ -46,7 +46,7 @@ export default class RequestHandler {
             default:
                 throw Error('rip');
         }
-        this.logger.debug(JSON.stringify(searchRes));
+        // this.logger.debug(JSON.stringify(searchRes));
         return this.parseSearchResult(searchRes);
     }
 
@@ -58,7 +58,6 @@ export default class RequestHandler {
                     id: hit._source.id,
                     content: hit._source.content,
                     title: hit._source.title,
-                    // todo mediaTye in elastic 'media-type'
                     mediaType: hit._source.mediaType,
                     source: hit._source.source,
                     published: hit._source.published

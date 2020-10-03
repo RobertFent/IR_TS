@@ -62,7 +62,7 @@ const getMapsOfEachClient = async (clients: ClientWrapper[]): Promise<ClientMap>
         });
     }
     // uncomment to get list of actual scores if outcome is not expected :-)
-    // logger.debug(JSON.stringify(clientMap));
+    logger.debug(JSON.stringify(clientMap));
     return clientMap;
 };
 

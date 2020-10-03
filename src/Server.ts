@@ -30,6 +30,7 @@ let results: ISourceArray = [];
 // creates index + adds entries from jsonl to it
 // eslint-disable-next-line no-unused-vars
 const initIndexing = async (): Promise<void> => {
+    // client with best map compared to other clients
     await clientWrapper.createIndex(Similarities.idf, Analyzer.default);
     const entries = await preprocessor.parseJSONLToJSON(JSONPATH);
     logger.info('Currently parsed entries: ' + Object.keys(entries).length.toString());

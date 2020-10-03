@@ -35,5 +35,29 @@
 h1 {
     display: flex;
     justify-content: center;
-    align-items: center;
+}
+
+h3 {
+    display: flex;
+    justify-content: center;
+}
+
+.results {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.searchField {
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+form {
+    width: 30%;
+}
+
+button {
+    margin-bottom: 10px;
 }

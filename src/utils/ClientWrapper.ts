@@ -129,7 +129,7 @@ export default class ClientWrapper {
                 }
             }
         });
-        this.logger.debug('Response body', response.body);
+        // this.logger.debug('Response body', response.body);
         return response.body;
     }
 

@@ -7,7 +7,7 @@
 
 <body>
     <%- include("../partials/header.ejs") %>
-    <div class="container">
+    <div class="searchField z-depth-1">
         <form action="/search" method="POST">
             <input type="text" placeholder="id" name="id">
             <input type="text" placeholder="content" name="content">
@@ -15,7 +15,7 @@
             <input type="text" placeholder="media-type" name="media-type">
             <input type="text" placeholder="source" name="source">
             <input type="text" placeholder="published" name="published">
-            <button type="submit">Search</button>
+            <button type="submit" class="material-icons">search</button>
         </form>
     </div>
     <div class="container">
