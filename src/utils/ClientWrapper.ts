@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Client } from '@elastic/elasticsearch';
-import { ISearchBody, ISearchResponse, ISource } from '../types/searchTypes';
+import { ISearchBody, ISearchQueries, ISearchQuery, ISearchResponse, ISource } from '../types/searchTypes';
 import { ISignalMediaArray } from '../types/signalMedia';
 import Logger from './Logger';
 
@@ -33,23 +33,23 @@ export default class ClientWrapper {
                         source: {
                             type: 'text',
                             analyzer: 'my_custom_analyzer',
-                            similarity : 'my_similarity'
+                            similarity: 'my_similarity'
                         },
                         published: { 'type': 'text' },
                         title: {
                             type: 'text',
                             analyzer: 'my_custom_analyzer',
-                            similarity : 'my_similarity'
+                            similarity: 'my_similarity'
                         },
                         'media-type': {
                             type: 'text',
                             analyzer: 'my_custom_analyzer',
-                            similarity : 'my_similarity'
+                            similarity: 'my_similarity'
                         },
                         content: {
                             type: 'text',
                             analyzer: 'my_custom_analyzer',
-                            similarity : 'my_similarity'
+                            similarity: 'my_similarity'
                         }
                     }
                 }
@@ -86,43 +86,24 @@ export default class ClientWrapper {
         this.logger.info('Bulk request response: ', result);
     }
 
-    public getSearchResultsBySingleParam = async (fieldName: string, fieldValue: string): Promise<string> => {
-        const response = await this.client.search({
-            index: this.index,
-            body: {
-                query: {
-                    match: { [fieldName]: fieldValue }
-                }
-            }
-        });
-        this.logger.debug('Response body', response.body);
-        return JSON.stringify(response.body.hits);
-    }
-
     // AND matching
-    // todo remove any
     public getSearchResultsByQuery = async (searchBody: ISearchBody | any): Promise<ISearchResponse<ISource>> => {
-        // following request works
-        // todo generic for up to 5 params
-        // todo add ',' if more than one param is given 
-        const response = await this.client.search<ISearchResponse<ISource>>({
-            index: this.index,
-            body: {
-                query: {
-                    match: searchBody
-                }
-            }
-        });
-        /* // const query = JSON.stringify(searchBody).replace(/"/g, '').replace(/\\/g, '');
-        const query = {...searchBody};
+        // const query = JSON.stringify(searchBody).replace(/"/g, '').replace(/\\/g, '');
+        const query = { ...searchBody };
         const body = {
-            body: {query}
+            body: { query }
         };
         try {
             const response = await this.client.search<ISearchResponse<ISource>>({
                 index: this.index,
                 body: {
-                    query: {searchBody} 
+                    query: {
+                        bool: {
+                            must: {
+                                searchBody
+                            }
+                        }
+                    }
                 }
             });
             return response.body;
@@ -132,9 +113,137 @@ export default class ClientWrapper {
         const response = await this.client.search<ISearchResponse<ISource>>({
             index: this.index,
             body: {
-                query: JSON.stringify(searchBody) 
+                query: JSON.stringify(searchBody)
             }
-        }); */
+        });
+        return response.body;
+    }
+
+    // FUCK GENERIC
+    public getSearchResultsBySingleParam = async (searchQuery: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    match: { [searchQuery[0].fieldName]: searchQuery[0].fieldValue }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+    }
+
+    public getSearchResultsByDoubleParam = async (searchQueries: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const builtBody: any = [];
+        searchQueries.forEach((value) => { builtBody.push({ match: { [value.fieldName]: value.fieldValue } }); });
+        /* const body = {
+            query: {
+                bool: {
+                    must: [
+                        builtBody[0],
+                        builtBody[1]
+                        // { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                        // { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } }
+                    ]
+                }
+            }
+        }; */
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                            { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } }
+                        ]
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+        // return JSON.stringify(response.body.hits);
+    }
+
+    public getSearchResultsByTripleParam = async (searchQueries: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                            { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } },
+                            { match: { [searchQueries[2].fieldName]: searchQueries[2].fieldValue } }
+                        ]
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+    }
+
+    public getSearchResultsByFourParams = async (searchQueries: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                            { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } },
+                            { match: { [searchQueries[2].fieldName]: searchQueries[2].fieldValue } },
+                            { match: { [searchQueries[3].fieldName]: searchQueries[3].fieldValue } }
+                        ]
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+    }
+
+    public getSearchResultsByFiveParams = async (searchQueries: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                            { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } },
+                            { match: { [searchQueries[2].fieldName]: searchQueries[2].fieldValue } },
+                            { match: { [searchQueries[3].fieldName]: searchQueries[3].fieldValue } },
+                            { match: { [searchQueries[4].fieldName]: searchQueries[4].fieldName } }
+                        ]
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+    }
+
+    public getSearchResultsBySixParams = async (searchQueries: ISearchQueries): Promise<ISearchResponse<ISource>> => {
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match: { [searchQueries[0].fieldName]: searchQueries[0].fieldValue } },
+                            { match: { [searchQueries[1].fieldName]: searchQueries[1].fieldName } },
+                            { match: { [searchQueries[2].fieldName]: searchQueries[2].fieldValue } },
+                            { match: { [searchQueries[3].fieldName]: searchQueries[3].fieldValue } },
+                            { match: { [searchQueries[4].fieldName]: searchQueries[4].fieldName } },
+                            { match: { [searchQueries[5].fieldName]: searchQueries[5].fieldValue } }
+                        ]
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
         return response.body;
     }
 }

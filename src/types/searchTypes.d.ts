@@ -2,7 +2,7 @@ export interface ISearchQuery {
     id?: string,
     content?: string,
     title?: string,
-    mediaType?: string,
+    'media-type'?: string,
     source?: string,
     published?: string
 }
@@ -11,11 +11,11 @@ export interface ISearchQuery {
     match: { [key: string]: string }
 } */
 
-interface ISearchBody{
-    [key: string]: string 
+interface ISearchBody {
+    [key: string]: string
 }
 
-export interface ISearchBodyArray extends Array<ISearchBody> {}
+export interface ISearchBodyArray extends Array<ISearchBody> { }
 
 export interface ISearchResponse<T> {
     took: number;
@@ -67,3 +67,10 @@ export interface ISource {
 }
 
 export interface ISourceArray extends Array<ISource> { }
+
+interface ISingleSearchQuery {
+    fieldName: string,
+    fieldValue: string
+}
+
+export interface ISearchQueries extends Array<ISingleSearchQuery> { }

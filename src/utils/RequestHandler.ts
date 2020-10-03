@@ -1,35 +1,53 @@
 import ClientWrapper from './ClientWrapper';
-import { ISearchBody, ISearchQuery, ISearchResponse, ISource, ISourceArray } from '../types/searchTypes';
+import { ISearchBody, ISearchQueries, ISearchQuery, ISearchResponse, ISource, ISourceArray } from '../types/searchTypes';
 import Logger from './Logger';
 
 export default class RequestHandler {
 
     private logger: Logger;
-    // private client: ClientWrapper;
 
     public constructor() {
         this.logger = new Logger(this.constructor.name);
-        // this.client = client;
     }
 
     public handleSearchQuery = async (searchQuery: ISearchQuery, client: ClientWrapper): Promise<ISourceArray> => {
-        // const searchBodyArray: ISearchBodyArray = [];
         const searchBody: ISearchBody = {};
-        // const test: any = [];
         Object.keys(searchQuery).forEach((key) => {
             const value = searchQuery[key];
-            if (value) {
-                // this.logger.debug(`${key}: ${value}`);
-                searchBody[key] = value;
-                // test.push({match: {[key]: value}});
-                // searchBodyArray.push({match: {[key]: value}});
-            }
+            if (value) searchBody[key] = value;
         });
-        // this.logger.debug(JSON.stringify(test));
-        // todo make test var work
-        // const searchResult = await this.client.getSearchResultsByQuery(test);
-        const searchResult = await client.getSearchResultsByQuery(searchBody);
-        return this.parseSearchResult(searchResult);
+
+        const sumKeys = Object.keys(searchBody).length;
+
+        // this is so dumb
+        const searchQueries: ISearchQueries = [];
+        Object.keys(searchBody).forEach((key) => searchQueries.push({fieldName: key, fieldValue: searchBody[key]}));
+
+        let searchRes: ISearchResponse<ISource>;
+        switch (sumKeys) {
+            case 1:
+                searchRes = await client.getSearchResultsBySingleParam(searchQueries);
+                break;
+            case 2:
+                searchRes = await client.getSearchResultsByDoubleParam(searchQueries);
+                break;
+            case 3:
+                searchRes = await client.getSearchResultsByTripleParam(searchQueries);
+                break;
+            case 4:
+                searchRes = await client.getSearchResultsByFourParams(searchQueries);
+                break;
+            case 5:
+                searchRes = await client.getSearchResultsByFiveParams(searchQueries);
+                break;
+            case 6:
+                searchRes = await client.getSearchResultsBySixParams(searchQueries);
+                break;
+            default:
+                throw Error('rip');
+        }
+        this.logger.debug(JSON.stringify(searchRes));
+        return this.parseSearchResult(searchRes);
     }
 
     private parseSearchResult = (searchResult: ISearchResponse<ISource>): ISourceArray => {

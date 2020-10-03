@@ -94,11 +94,11 @@ const initTestClients = async (): Promise<void> => {
 
 // config express to use ejs
 // todo dirty path
-app.set('views', path.join(__dirname, '/../frontend/views/pages'));
+app.set('views', path.join(__dirname, '/../../frontend/views/pages'));
 app.set('view engine', 'ejs');
 
 // for css
-app.use(express.static(__dirname + '/../frontend/assets'));
+app.use(express.static(__dirname + '/../../frontend/assets'));
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -109,19 +109,23 @@ app.get('/', async (req: express.Request, res: express.Response): Promise<void> 
 });
 
 // todo show number hits etc
-// todo results with more than one field not working
 // todo make css look nice
 app.post('/search', async (req: express.Request, res: express.Response): Promise<void> => {
-    results = await requestHandler.handleSearchQuery(req.body as ISearchQuery, clientWrapper);
+    try {
+        results = await requestHandler.handleSearchQuery(req.body as ISearchQuery, clientWrapper);    
+    } catch (error) {
+        logger.error(error);
+    } finally {
+        res.redirect('/');
+    }
     // logger.debug(JSON.stringify(results));
-    res.redirect('/');
 });
 
-// start server on port 420
+// start server on given port (8069)
 app.listen(PORT, async (): Promise<void> => {
     logger.info(`Server started at: http://localhost:${PORT}`);
     // uncomment following lines when starting this server on your machine for the first time
     // await initIndexing();
     // await initTestCollection();
-    await initTestClients();
+    // await initTestClients();
 });

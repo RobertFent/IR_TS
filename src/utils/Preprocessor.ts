@@ -3,46 +3,6 @@ import Logger from './Logger';
 import LineReader from 'line-reader';
 
 /*
-in kibana dev console:
-PUT /signal-media
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "my_custom_analyzer": {
-          "type": "custom",
-          "tokenizer": "whitespace",
-          "filter": ["lowercase"]
-        }
-      }
-    }
-  },
-  "mappings": {
-    "properties": {
-      "id": { "type": "text" },
-      "source": {
-        "type": "text",
-        "analyzer": "my_custom_analyzer"
-      },
-      "published": { "type": "text" },
-      "title": {
-        "type": "text",
-        "analyzer": "my_custom_analyzer"
-      },
-      "media-type": {
-        "type": "text",
-        "analyzer": "my_custom_analyzer"
-      },
-      "content": {
-        "type": "text",
-        "analyzer": "my_custom_analyzer"
-      }
-    }
-  }
-}
-*/
-
-/*
 RangeError [ERR_FS_FILE_TOO_LARGE]: File size (2741147514) is greater than 2 GB
     at tryCreateBuffer (fs.js:343:13)
     at Object.readFileSync (fs.js:379:14)
@@ -56,18 +16,14 @@ RangeError [ERR_FS_FILE_TOO_LARGE]: File size (2741147514) is greater than 2 GB
     at Object.Module._extensions..js (internal/modules/cjs/loader.js:1097:10) {
   code: 'ERR_FS_FILE_TOO_LARGE'
 }
-
 todo https://github.com/dominictarr/JSONStream
-
 */
 
 export default class Preprocessor {
 
-    // private typedData: ISignalMedia = {};
     private logger: Logger;
 
     public constructor() {
-        // this.typedData = data as ISignalMedia;
         // init logger
         this.logger = new Logger('Preprocessor');
     }
@@ -76,6 +32,7 @@ export default class Preprocessor {
 
     }
 
+    // todo last 100k missing
     public parseJSONLToJSON = async (path: string): Promise<ISignalMediaArray> => {
         const file: ISignalMediaArray = [];
         this.logger.info('Parsing jsonl file: ' + path);
