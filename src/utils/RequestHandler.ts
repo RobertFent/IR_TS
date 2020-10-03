@@ -23,29 +23,7 @@ export default class RequestHandler {
         const searchQueries: ISearchQueries = [];
         Object.keys(searchBody).forEach((key) => searchQueries.push({fieldName: key, fieldValue: searchBody[key]}));
 
-        let searchRes: ISearchResponse<ISource>;
-        switch (sumKeys) {
-            case 1:
-                searchRes = await client.getSearchResultsBySingleParam(searchQueries);
-                break;
-            case 2:
-                searchRes = await client.getSearchResultsByDoubleParam(searchQueries);
-                break;
-            case 3:
-                searchRes = await client.getSearchResultsByTripleParam(searchQueries);
-                break;
-            case 4:
-                searchRes = await client.getSearchResultsByFourParams(searchQueries);
-                break;
-            case 5:
-                searchRes = await client.getSearchResultsByFiveParams(searchQueries);
-                break;
-            case 6:
-                searchRes = await client.getSearchResultsBySixParams(searchQueries);
-                break;
-            default:
-                throw Error('rip');
-        }
+        const searchRes: ISearchResponse<ISource> = await client.getSearchResults(searchQueries, sumKeys);
         // this.logger.debug(JSON.stringify(searchRes));
         return this.parseSearchResult(searchRes);
     }

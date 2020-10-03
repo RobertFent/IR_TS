@@ -246,4 +246,33 @@ export default class ClientWrapper {
         this.logger.debug('Response body', response.body);
         return response.body;
     }
+
+    public getSearchResults = async (searchQueries: ISearchQueries, numParams: number): Promise<ISearchResponse<ISource>> => {
+        const must = [] as {
+            match: {
+                [x: string]: string;
+            };
+        }[];
+
+        for (let index = 0; index < numParams; index++) {
+            must.push({
+                match: {
+                    [searchQueries[index].fieldName]: searchQueries[index].fieldValue
+                }
+            });
+        }
+
+        const response = await this.client.search<ISearchResponse<ISource>>({
+            index: this.index,
+            body: {
+                query: {
+                    bool: {
+                        must
+                    }
+                }
+            }
+        });
+        this.logger.debug('Response body', response.body);
+        return response.body;
+    }
 }
