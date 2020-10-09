@@ -33,13 +33,8 @@ let results: ISourceArray = [];
 const initIndexing = async (): Promise<void> => {
     // client with best map compared to other clients
     await clientWrapper.createIndex(Similarities.idf, Analyzer.default);
-    // index first half, then second half to prevent heap out of memory
-    for(let i = 0; i < 2; i++) {
-        let halfOfEntries = await preprocessor.parseJSONLToJSONArray(JSONPATH, SUM_ENTRIES/2);
-        await clientWrapper.indexDocuments(halfOfEntries);
-        // manual garbage collection to prevent heap out of memory
-        halfOfEntries = null as any;
-    }
+    const entries = await preprocessor.parseJSONLToJSONArray(JSONPATH, SUM_ENTRIES);
+    await clientWrapper.indexDocuments(entries);
 };
 
 // writes test collection based on given id of documents
