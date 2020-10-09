@@ -18,7 +18,10 @@
             ],
             "outputCapture": "std",
             "internalConsoleOptions": "openOnSessionStart",
-            "runtimeVersion": "14.0.0"
+            "runtimeVersion": "14.0.0",
+            "runtimeArgs": [
+                "--max-old-space-size=8192"
+            ]
         }
     ]
 }

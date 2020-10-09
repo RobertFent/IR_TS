@@ -25,7 +25,6 @@ export default class Logger {
                     filename: `./logs/${route}.log`
                 })
             ],
-            // todo error stack trace
             format: winston.format.combine(
                 winston.format.errors({stack: true}),
                 winston.format.printf((info) => {

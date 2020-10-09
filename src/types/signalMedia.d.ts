@@ -1,10 +1,10 @@
 export interface ISignalMedia {
-    [index: number]: ISginalMediaEntry
+    [index: number]: ISignalMediaEntry
 }
 
-export interface ISignalMediaArray extends Array<ISginalMediaEntry>{}
+export interface ISignalMediaArray extends Array<ISignalMediaEntry>{}
 
-export interface ISginalMediaEntry {
+export interface ISignalMediaEntry {
     id: string,
     content: string,
     title: string,

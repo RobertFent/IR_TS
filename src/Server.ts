@@ -13,6 +13,7 @@ import { ISignalMediaArray } from './types/signalMedia';
 import testCollectionJson from '../assets/testCollection.json';
 
 const PORT = 8069;
+const SUM_ENTRIES = 1000000;
 const JSONPATH = __dirname + '/../../assets/sample-1M.jsonl';
 const JSONPATHTESTCOLLECTION = __dirname + '/../../assets/testCollection.json';
 const INDEX = 'signal_media';
@@ -32,15 +33,21 @@ let results: ISourceArray = [];
 const initIndexing = async (): Promise<void> => {
     // client with best map compared to other clients
     await clientWrapper.createIndex(Similarities.idf, Analyzer.default);
-    const entries = await preprocessor.parseJSONLToJSON(JSONPATH);
-    logger.info('Currently parsed entries: ' + Object.keys(entries).length.toString());
-    await clientWrapper.indexDocuments(entries);
+    // index first half, then second half to prevent heap out of memory
+    for(let i = 0; i < 2; i++) {
+        let halfOfEntries = await preprocessor.parseJSONLToJSONArray(JSONPATH, SUM_ENTRIES/2);
+        await clientWrapper.indexDocuments(halfOfEntries);
+        // manual garbage collection to prevent heap out of memory
+        halfOfEntries = null as any;
+    }
 };
 
 // writes test collection based on given id of documents
 // eslint-disable-next-line no-unused-vars
 const initTestCollection = async (): Promise<void> => {
-    const entries = await preprocessor.parseJSONLToJSON(JSONPATH);
+    // reset lineCounter because starting at 0 again
+    preprocessor.resetLineCounter();
+    const entries = await preprocessor.parseJSONLToJSONArray(JSONPATH, SUM_ENTRIES);
     logger.info('Getting test entries...');
     // index testing documents
     const testEntries: ISignalMediaArray = [];
@@ -94,7 +101,6 @@ const initTestClients = async (): Promise<void> => {
 };
 
 // config express to use ejs
-// todo dirty path
 app.set('views', path.join(__dirname, '/../../frontend/views/pages'));
 app.set('view engine', 'ejs');
 
@@ -109,8 +115,6 @@ app.get('/', async (req: express.Request, res: express.Response): Promise<void> 
     res.render('index', { results: results });
 });
 
-// todo show number hits etc
-// todo make css look nice
 app.post('/search', async (req: express.Request, res: express.Response): Promise<void> => {
     try {
         results = await requestHandler.handleSearchQuery(req.body as ISearchQuery, clientWrapper);    
@@ -119,14 +123,18 @@ app.post('/search', async (req: express.Request, res: express.Response): Promise
     } finally {
         res.redirect('/');
     }
-    // logger.debug(JSON.stringify(results));
 });
 
 // start server on given port (8069)
 app.listen(PORT, async (): Promise<void> => {
-    logger.info(`Server started at: http://localhost:${PORT}`);
-    // uncomment following lines when starting this server on your machine for the first time
-    // await initIndexing();
+    logger.info('Init...');
+    // not needed as collection is already parsed
     // await initTestCollection();
-    // await initTestClients();
+    // uncomment following lines when starting this server on your machine for the first time
+    // first run initIndexing
+    await initIndexing();
+    // then run initTestClients if not using launch.json from vscode
+    await initTestClients();
+    logger.info('Init done!');
+    logger.info(`Server started at: http://localhost:${PORT}`);
 });

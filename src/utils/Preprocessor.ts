@@ -1,82 +1,54 @@
-import { ISginalMediaEntry, ISignalMediaArray } from '../types/signalMedia';
+import { ISignalMediaEntry, ISignalMediaArray } from '../types/signalMedia';
 import Logger from './Logger';
-import LineReader from 'line-reader';
-
-/*
-RangeError [ERR_FS_FILE_TOO_LARGE]: File size (2741147514) is greater than 2 GB
-    at tryCreateBuffer (fs.js:343:13)
-    at Object.readFileSync (fs.js:379:14)
-    at Object.Module._extensions..json (internal/modules/cjs/loader.js:1103:22)
-    at Module.load (internal/modules/cjs/loader.js:941:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:782:14)
-    at Module.require (internal/modules/cjs/loader.js:965:19)
-    at require (internal/modules/cjs/helpers.js:88:18)
-    at Object.<anonymous> (/home/robert/repos/IR_TS/dist/Preprocessor.js:7:42)
-    at Module._compile (internal/modules/cjs/loader.js:1076:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1097:10) {
-  code: 'ERR_FS_FILE_TOO_LARGE'
-}
-todo https://github.com/dominictarr/JSONStream
-*/
+import LineReader from 'linereader';
 
 export default class Preprocessor {
 
     private logger: Logger;
+    // save num of parsed lines for calling parser method twice
+    private parsedLines: number = 0;
 
     public constructor() {
         // init logger
         this.logger = new Logger('Preprocessor');
     }
 
-    public parseJSON = async (): Promise<void> => {
-
-    }
-
-    // todo last 100k missing
-    public parseJSONLToJSON = async (path: string): Promise<ISignalMediaArray> => {
+    public parseJSONLToJSONArray = async (path: string, amountLines: number): Promise<ISignalMediaArray> => {
         const file: ISignalMediaArray = [];
         this.logger.info('Parsing jsonl file: ' + path);
-        let i = 0;
-    try {
-        await new Promise((res, rej) => {
-            // running each indexing command seperate -> retarded
-            LineReader.eachLine(path, (line, _last) => {
-                const entry: ISginalMediaEntry = JSON.parse(line);
-                file[i] = entry;
-                // manual resolving after 1mio entries
-                // if (i === 999999) res();
-                // for now only able to index first 900k without crashing
-                if (i === 899999) res();
-                i++;
+        this.logger.info(`Parsing ${amountLines} lines...`);
+        const finalLine = this.parsedLines + amountLines;
+        // this.logger.debug(`Starting at line: ${this.parsedLines}`);
+        try {
+            await new Promise((res, rej) => {
+                const lr = new LineReader(path);
+                lr.on('line', (numLine, line) => {
+                    if (numLine <= finalLine && numLine >= this.parsedLines) {
+                        this.parsedLines++;
+                        const entry: ISignalMediaEntry = JSON.parse(line);
+                        file.push(entry);
+                    } else if (numLine > finalLine) {
+                        lr.close();
+                    }
+                });
+
+                lr.on('end', () => {
+                    // this.logger.debug(`Ended at line: ${finalLine}`);
+                    // this.logger.debug(file.length.toString());
+                    res();
+                });
+
+                // wait 100min before rejecting
+                setTimeout(() => rej('Timeout after 100min has been thrown'), 600000);
             });
-            /* LineReader.eachLine(path, (line, _last) => {
-                const entry: ISginalMediaEntry = JSON.parse(line);
-                if (i > 900000) file.push(entry);
-                // manual resolving after 1mio entries
-                // if (i === 999999) res();
-                // for now only able to index first 900k without crashing
-                if (i === 999999) res();
-                i++;
-            }); */
-            
-            // breaks at line 33
-            /* LineReader.open(path, (_err, reader) => {
-                while (reader.hasNextLine()) {
-                    reader.nextLine((_err, _line) => {
-                        this.logger.debug(i.toString());
-                        i++;
-                    });
-                    if (i % 100000 === 0) this.logger.debug(i.toString());
-                }
-                this.logger.debug(`EOF! i=${i}`);
-            }); */
-            // wait 100min before rejecting
-            setTimeout(() => rej('Timeout after 100min has been thrown'), 600000);
-        });
-    } catch (error) {
-        this.logger.error(error);
-    }
+        } catch (error) {
+            this.logger.error(error);
+        }
         this.logger.info('done');
         return file;
+    }
+
+    public resetLineCounter = (): void => {
+        this.parsedLines = 0;
     }
 }
