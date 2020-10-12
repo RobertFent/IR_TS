@@ -127,9 +127,9 @@ app.listen(PORT, async (): Promise<void> => {
     // await initTestCollection();
     // uncomment following lines when starting this server on your machine for the first time
     // first run initIndexing
-    await initIndexing();
+    // await initIndexing();
     // then run initTestClients if not using launch.json from vscode
-    await initTestClients();
+    // await initTestClients();
     logger.info('Init done!');
     logger.info(`Server started at: http://localhost:${PORT}`);
 });

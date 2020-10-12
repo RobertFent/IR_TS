@@ -12,20 +12,23 @@ export default class RequestHandler {
 
     public handleSearchQuery = async (searchQuery: ISearchQuery, client: ClientWrapper): Promise<ISourceArray> => {
         const searchBody: ISearchBody = {};
+        // remove unfilled rows
         Object.keys(searchQuery).forEach((key) => {
             const value = searchQuery[key];
             if (value) searchBody[key] = value;
         });
 
         const sumKeys = Object.keys(searchBody).length;
+        if (sumKeys > 0) {
+            // get searchQuery as array
+            const searchQueries: ISearchQueries = [];
+            Object.keys(searchBody).forEach((key) => searchQueries.push({ fieldName: key, fieldValue: searchBody[key] }));
 
-        // this is so dumb
-        const searchQueries: ISearchQueries = [];
-        Object.keys(searchBody).forEach((key) => searchQueries.push({fieldName: key, fieldValue: searchBody[key]}));
-
-        const searchRes: ISearchResponse<ISource> = await client.getSearchResults(searchQueries, sumKeys);
-        // this.logger.debug(JSON.stringify(searchRes));
-        return this.parseSearchResult(searchRes);
+            const searchRes: ISearchResponse<ISource> = await client.getSearchResults(searchQueries, sumKeys);
+            // this.logger.debug(JSON.stringify(searchRes));
+            return this.parseSearchResult(searchRes);
+        }
+        return [];
     }
 
     private parseSearchResult = (searchResult: ISearchResponse<ISource>): ISourceArray => {
